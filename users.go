@@ -1,6 +1,10 @@
 package feather
 
-import "time"
+import (
+	"net/http"
+	"strings"
+	"time"
+)
 
 // User is the Feather user object.
 // https://feather.id/docs/reference/api#userObject
@@ -41,13 +45,23 @@ type UsersListParams struct {
 // Retrieve a user.
 // https://feather.id/docs/reference/api#retrieveUser
 func (u users) Retrieve(id string) (*User, error) {
-	panic("not implemented")
+	var user User
+	path := strings.Join([]string{pathUsers, id}, "/")
+	if err := u.gateway.sendRequest(http.MethodGet, path, nil, &user); err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 // Update a user.
 // https://feather.id/docs/reference/api#updateUser
 func (u users) Update(id string, params UsersUpdateParams) (*User, error) {
-	panic("not implemented")
+	var user User
+	path := strings.Join([]string{pathUsers, id}, "/")
+	if err := u.gateway.sendRequest(http.MethodPost, path, params, &user); err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 // UsersUpdateParams ...

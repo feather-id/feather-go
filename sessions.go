@@ -1,6 +1,8 @@
 package feather
 
 import (
+	"net/http"
+	"strings"
 	"time"
 )
 
@@ -33,7 +35,11 @@ type sessions struct {
 // Create a new session.
 // https://feather.id/docs/reference/api#createSession
 func (s sessions) Create(params SessionsCreateParams) (*Session, error) {
-	panic("not implemented")
+	var session Session
+	if err := s.gateway.sendRequest(http.MethodPost, pathSessions, params, &session); err != nil {
+		return nil, err
+	}
+	return &session, nil
 }
 
 // SessionsCreateParams ...
@@ -58,13 +64,23 @@ type SessionsListParams struct {
 // Retrieve a session.
 // https://feather.id/docs/reference/api#retrieveSession
 func (s sessions) Retrieve(id string) (*Session, error) {
-	panic("not implemented")
+	var session Session
+	path := strings.Join([]string{pathSessions, id}, "/")
+	if err := s.gateway.sendRequest(http.MethodGet, path, nil, &session); err != nil {
+		return nil, err
+	}
+	return &session, nil
 }
 
 // Upgrade a session.
 // https://feather.id/docs/reference/api#upgradeSession
 func (s sessions) Upgrade(id string, params SessionsUpgradeParams) (*Session, error) {
-	panic("not implemented")
+	var session Session
+	path := strings.Join([]string{pathSessions, id, "upgrade"}, "/")
+	if err := s.gateway.sendRequest(http.MethodPost, path, params, &session); err != nil {
+		return nil, err
+	}
+	return &session, nil
 }
 
 // SessionsUpgradeParams ...
