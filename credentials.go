@@ -1,24 +1,35 @@
 package feather
 
 import (
+	"net/http"
+	"strings"
 	"time"
 )
 
 // Credentials ...
 var Credentials = credentialsResource{}
 
-type credentialsResource struct {
-}
+type credentialsResource struct{}
 
 func (c credentialsResource) Create(params CredentialsCreateParams) (*Credential, error) {
-	panic("not implemented")
+	var credential Credential
+	if err := apiGateway.sendRequest(http.MethodPost, resourcePathCredentials, params, &credential); err != nil {
+		return nil, err
+	}
+	return &credential, nil
 }
 
 func (c credentialsResource) Update(id string, params CredentialsUpdateParams) (*Credential, error) {
-	panic("not implemented")
+	var credential Credential
+	path := strings.Join([]string{resourcePathCredentials, id}, "/")
+	if err := apiGateway.sendRequest(http.MethodPost, path, params, &credential); err != nil {
+		return nil, err
+	}
+	return &credential, nil
 }
 
 // Credential is a Feather credential object
+// https://feather.id/docs/reference/api#credentials
 type Credential struct {
 	ID        string    `json:"id"`
 	Object    string    `json:"object"`
@@ -31,13 +42,13 @@ type Credential struct {
 
 // CredentialsCreateParams ...
 type CredentialsCreateParams struct {
-	Type     string `json:"type"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Type     string  `json:"type"`
+	Email    *string `json:"email"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
 }
 
 // CredentialsUpdateParams ...
 type CredentialsUpdateParams struct {
-	OneTimeCode string `json:"one_time_code"`
+	OneTimeCode *string `json:"one_time_code"`
 }

@@ -1,31 +1,12 @@
 package feather
 
-// New initializes a new Feather client
-// func New(apiKey string, config Config) (Feather, error) {
-// 	return Feather{
-// 		Credentials: resource.NewCredentials(),
-// 		PublicKeys:  resource.NewPublicKeys(),
-// 		Sessions:    resource.NewSessions(),
-// 		Users:       resource.NewUsers(),
-// 		apiKey:      apiKey,
-// 		config:      config,
-// 		gateway:     gateway{},
-// 	}, nil
-// }
+// APIKey the key the API will be called with
+var APIKey string
 
-// Feather ...
-// type Feather struct {
-// 	// Public
-// 	Credentials resource.Credentials
-// 	PublicKeys  resource.PublicKeys
-// 	Sessions    resource.Sessions
-// 	Users       resource.Users
-//
-// 	// Private
-// 	apiKey  string
-// 	config  Config
-// 	gateway gateway
-// }
+// SetConfig ...
+func SetConfig(cfg Config) {
+	apiGateway.config = cfg
+}
 
 // Config allows the caller to configure the Feather SDK setup
 type Config struct {
@@ -34,3 +15,9 @@ type Config struct {
 	Protocol string
 	BasePath string
 }
+
+const (
+	resourcePathCredentials = "/credentials"
+	resourcePathSessions    = "/sessions"
+	resourcePathUsers       = "/users"
+)

@@ -20,7 +20,8 @@ func (u usersResource) Update(id string, params UsersUpdateParams) (*User, error
 	panic("not implemented")
 }
 
-// User is a Feather user object
+// User is the Feather user object
+// https://feather.id/docs/reference/api#users
 type User struct {
 	ID        string    `json:"id"`
 	Object    string    `json:"object"`

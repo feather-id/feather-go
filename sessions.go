@@ -34,6 +34,7 @@ func (s sessionsResource) Validate(params SessionsValidateParams) (*Session, err
 }
 
 // Session is the Feather session object
+// https://feather.id/docs/reference/api#sessions
 type Session struct {
 	ID        fid.FID    `json:"id"`
 	Object    string     `json:"object"`
