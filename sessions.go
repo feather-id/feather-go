@@ -1,42 +1,46 @@
 package feather
 
 import (
-	"feather/IDPLAT/src/common/fid"
 	"time"
 )
 
-// Sessions ...
-var Sessions = sessionsResource{}
-
-// Sessions resource
-
-type sessionsResource struct {
+// Sessions resource interface ...
+type Sessions interface {
+	Create(params SessionsCreateParams) (*Session, error)
+	List(param SessionsListParams)
+	Retrieve(id string) (*Session, error)
+	Upgrade(id string, params SessionsUpgradeParams) (*Session, error)
+	Validate(params SessionsValidateParams) (*Session, error)
 }
 
-func (s sessionsResource) Create(params SessionsCreateParams) (*Session, error) {
+type sessions struct {
+	gateway gateway
+}
+
+func (s sessions) Create(params SessionsCreateParams) (*Session, error) {
 	panic("not implemented")
 }
 
-func (s sessionsResource) List(param SessionsListParams) {
+func (s sessions) List(param SessionsListParams) {
 	panic("not implemented")
 }
 
-func (s sessionsResource) Retrieve(id string) (*Session, error) {
+func (s sessions) Retrieve(id string) (*Session, error) {
 	panic("not implemented")
 }
 
-func (s sessionsResource) Upgrade(id string, params SessionsUpgradeParams) (*Session, error) {
+func (s sessions) Upgrade(id string, params SessionsUpgradeParams) (*Session, error) {
 	panic("not implemented")
 }
 
-func (s sessionsResource) Validate(params SessionsValidateParams) (*Session, error) {
+func (s sessions) Validate(params SessionsValidateParams) (*Session, error) {
 	panic("not implemented")
 }
 
 // Session is the Feather session object
 // https://feather.id/docs/reference/api#sessions
 type Session struct {
-	ID        fid.FID    `json:"id"`
+	ID        string     `json:"id"`
 	Object    string     `json:"object"`
 	Type      string     `json:"type"`   // TODO make enum
 	Status    string     `json:"status"` // TODO make enum

@@ -19,11 +19,8 @@ const (
 	defaultBasePath string = "/v1"
 )
 
-var apiGateway = gateway{
-	config: Config{},
-}
-
 type gateway struct {
+	apiKey string
 	config Config
 }
 
@@ -40,7 +37,7 @@ func (g gateway) sendRequest(method string, path string, data interface{}, write
 	if err != nil {
 		return err
 	}
-	req.SetBasicAuth(APIKey, "")
+	req.SetBasicAuth(g.apiKey, "")
 	req.Header.Set("Content-Type", contentType)
 
 	// Execute request

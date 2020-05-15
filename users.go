@@ -3,20 +3,25 @@ package feather
 import "time"
 
 // Users resesource interface ...
-var Users = usersResource{}
-
-type usersResource struct {
+type Users interface {
+	List(params UsersListParams)
+	Retrieve(id string) (*User, error)
+	Update(id string, params UsersUpdateParams) (*User, error)
 }
 
-func (u usersResource) List(params UsersListParams) {
+type users struct {
+	gateway gateway
+}
+
+func (u users) List(params UsersListParams) {
 	panic("not implemented")
 }
 
-func (u usersResource) Retrieve(id string) (*User, error) {
+func (u users) Retrieve(id string) (*User, error) {
 	panic("not implemented")
 }
 
-func (u usersResource) Update(id string, params UsersUpdateParams) (*User, error) {
+func (u users) Update(id string, params UsersUpdateParams) (*User, error) {
 	panic("not implemented")
 }
 
