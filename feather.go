@@ -23,9 +23,9 @@ type Client struct {
 // This is typically only needed in a testing/development environment and should
 // not be used in production code.
 type Config struct {
+	Protocol string
 	Host     string
 	Port     string
-	Protocol string
 	BasePath string
 }
 

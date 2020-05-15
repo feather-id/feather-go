@@ -1,7 +1,7 @@
 package feather
 
 const (
-	resourcePathCredentials = "/credentials"
-	resourcePathSessions    = "/sessions"
-	resourcePathUsers       = "/users"
+	pathCredentials = "/credentials"
+	pathSessions    = "/sessions"
+	pathUsers       = "/users"
 )

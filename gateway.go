@@ -25,9 +25,18 @@ type gateway struct {
 }
 
 func (g gateway) sendRequest(method string, path string, data interface{}, writeTo interface{}) error {
+	req, err := g.buildRequest(method, path, data)
+	if err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	return parseResponse(resp, writeTo)
+}
 
-	// Build request
-	client := http.Client{}
+func (g gateway) buildRequest(method string, path string, data interface{}) (*http.Request, error) {
 	url := buildRequestURL(method, path, data, g.config)
 	var body io.Reader
 	if method == http.MethodPost {
@@ -35,19 +44,11 @@ func (g gateway) sendRequest(method string, path string, data interface{}, write
 	}
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.SetBasicAuth(g.apiKey, "")
 	req.Header.Set("Content-Type", contentType)
-
-	// Execute request
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	// Parse response
-	return parseResponse(resp, writeTo)
+	return req, nil
 }
 
 func buildRequestURL(method string, path string, data interface{}, cfg Config) string {
@@ -55,29 +56,23 @@ func buildRequestURL(method string, path string, data interface{}, cfg Config) s
 	if cfg.Protocol != "" {
 		protocol = cfg.Protocol
 	}
-
 	host := defaultHost
 	if cfg.Host != "" {
 		host = cfg.Host
 	}
-
 	port := defaultPort
 	if cfg.Port != "" {
 		port = cfg.Port
 	}
-
 	basePath := defaultBasePath
 	if cfg.BasePath != "" {
 		basePath = cfg.BasePath
 	}
-
 	query := ""
 	if method == http.MethodGet {
 		query = urlEncodeData(data)
 	}
-
-	url := fmt.Sprintf("%v://%v:%v%v%v%v", protocol, host, port, basePath, path, query)
-	return url
+	return fmt.Sprintf("%v://%v:%v%v%v%v", protocol, host, port, basePath, path, query)
 }
 
 func buildRequestBody(data interface{}) io.Reader {
@@ -112,11 +107,9 @@ func urlEncodeData(data interface{}) string {
 }
 
 func parseResponse(resp *http.Response, into interface{}) error {
-
 	type object struct {
 		Object string `json:"object"`
 	}
-
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -125,14 +118,12 @@ func parseResponse(resp *http.Response, into interface{}) error {
 	if err = json.Unmarshal(bytes, &obj); err != nil {
 		return err
 	}
-
 	if obj.Object == "error" {
-		var apiError Error
-		if err = json.Unmarshal(bytes, &apiError); err != nil {
+		var ferr Error
+		if err = json.Unmarshal(bytes, &ferr); err != nil {
 			return err
 		}
-		return apiError
+		return ferr
 	}
-
 	return json.Unmarshal(bytes, into)
 }
