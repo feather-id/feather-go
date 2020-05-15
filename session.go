@@ -18,11 +18,18 @@ type Session struct {
 	RevokedAt *time.Time `json:"revoked_at"`
 }
 
+// SessionList is a list of Feather session objects.
+// https://feather.id/docs/reference/api#pagination
+type SessionList struct {
+	ListMeta
+	Data []*Session `json:"data"`
+}
+
 // Sessions provides an interface for accessing Feather API session objects.
 // https://feather.id/docs/reference/api#sessions
 type Sessions interface {
 	Create(params SessionsCreateParams) (*Session, error)
-	List(param SessionsListParams) // TODO lists
+	List(params SessionsListParams) (*SessionList, error)
 	Retrieve(id string) (*Session, error)
 	Upgrade(id string, params SessionsUpgradeParams) (*Session, error)
 	Validate(params SessionsValidateParams) (*Session, error)
@@ -44,21 +51,23 @@ func (s sessions) Create(params SessionsCreateParams) (*Session, error) {
 
 // SessionsCreateParams ...
 type SessionsCreateParams struct {
-	CredentialToken string `json:"credential_token"`
+	CredentialToken *string `json:"credential_token"`
 }
 
 // List a user's sessions.
 // https://feather.id/docs/reference/api#listSessions
-func (s sessions) List(param SessionsListParams) {
-	panic("not implemented")
+func (s sessions) List(params SessionsListParams) (*SessionList, error) {
+	var sessionList SessionList
+	if err := s.gateway.sendRequest(http.MethodGet, pathSessions, params, &sessionList); err != nil {
+		return nil, err
+	}
+	return &sessionList, nil
 }
 
 // SessionsListParams ...
 type SessionsListParams struct {
-	UserID        string `json:"user_id"`
-	Limit         int    `json:"limit"`
-	StartingAfter string `json:"starting_after"`
-	EndingBefore  string `json:"ending_before"`
+	ListParams
+	UserID string `json:"user_id"`
 }
 
 // Retrieve a session.
@@ -85,7 +94,7 @@ func (s sessions) Upgrade(id string, params SessionsUpgradeParams) (*Session, er
 
 // SessionsUpgradeParams ...
 type SessionsUpgradeParams struct {
-	CredentialToken string `json:"credential_token"`
+	CredentialToken *string `json:"credential_token"`
 }
 
 // Validate a session.
@@ -96,5 +105,5 @@ func (s sessions) Validate(params SessionsValidateParams) (*Session, error) {
 
 // SessionsValidateParams ...
 type SessionsValidateParams struct {
-	SessionToken string `json:"session_token"`
+	SessionToken *string `json:"session_token"`
 }

@@ -38,7 +38,7 @@ type Config struct {
 //     client := feather.New("test_ABC")
 //
 //     // Create a Feather client with additional configuration
-//     client := feather.New("test_ABC", feather.Config{ Host: "localhost" })
+//     client := feather.New("test_ABC", &feather.Config{ Host: "localhost" })
 func New(apiKey string, cfgs ...*Config) Client {
 	cfg := Config{}
 	if len(cfgs) > 0 {

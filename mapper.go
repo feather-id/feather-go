@@ -10,7 +10,7 @@ func Bool(v bool) *bool {
 	return &v
 }
 
-// Int ...
-func Int(v int) *int {
+// UInt32 ...
+func UInt32(v uint32) *uint32 {
 	return &v
 }

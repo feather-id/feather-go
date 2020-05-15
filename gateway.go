@@ -70,7 +70,7 @@ func buildRequestURL(method string, path string, data interface{}, cfg Config) s
 	}
 	query := ""
 	if method == http.MethodGet {
-		query = urlEncodeData(data)
+		query = "?" + urlEncodeData(data)
 	}
 	return fmt.Sprintf("%v://%v:%v%v%v%v", protocol, host, port, basePath, path, query)
 }
@@ -85,6 +85,14 @@ func buildRequestBody(data interface{}) io.Reader {
 }
 
 func urlEncodeData(data interface{}) string {
+	joinEncData := func(a string, b string) string {
+		if a == "" {
+			return b
+		} else if b == "" {
+			return a
+		}
+		return a + "&" + b
+	}
 	encData := ""
 	if data != nil {
 		rVal := reflect.ValueOf(data)
@@ -92,7 +100,10 @@ func urlEncodeData(data interface{}) string {
 		urlVals := netUrl.Values{}
 		for i := 0; i < rVal.NumField(); i++ {
 			if rVal.Field(i).Kind() != reflect.Ptr || !rVal.Field(i).IsNil() {
-				if tag := rType.Field(i).Tag.Get("json"); tag != "" {
+				if rVal.Field(i).Kind() == reflect.Struct {
+					// Recursively flatten the request
+					encData = joinEncData(encData, urlEncodeData(rVal.Field(i).Interface()))
+				} else if tag := rType.Field(i).Tag.Get("json"); tag != "" {
 					var f = rVal.Field(i)
 					if f.Kind() == reflect.Ptr {
 						f = f.Elem()
@@ -101,7 +112,7 @@ func urlEncodeData(data interface{}) string {
 				}
 			}
 		}
-		encData = urlVals.Encode()
+		encData = joinEncData(encData, urlVals.Encode())
 	}
 	return encData
 }
@@ -118,7 +129,8 @@ func parseResponse(resp *http.Response, into interface{}) error {
 	if err = json.Unmarshal(bytes, &obj); err != nil {
 		return err
 	}
-	if obj.Object == "error" {
+	const objectError = "error"
+	if obj.Object == objectError {
 		var ferr Error
 		if err = json.Unmarshal(bytes, &ferr); err != nil {
 			return err

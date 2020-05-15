@@ -17,10 +17,17 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// UserList is a list of Feather user objects.
+// https://feather.id/docs/reference/api#pagination
+type UserList struct {
+	ListMeta
+	Data []*User `json:"data"`
+}
+
 // Users provides an interface for accessing Feather API user objects.
 // https://feather.id/docs/reference/api#users
 type Users interface {
-	List(params UsersListParams) // TODO lists
+	List(params UsersListParams) (*UserList, error)
 	Retrieve(id string) (*User, error)
 	Update(id string, params UsersUpdateParams) (*User, error)
 }
@@ -31,15 +38,17 @@ type users struct {
 
 // List a project's users.
 // https://feather.id/docs/reference/api#listUsers
-func (u users) List(params UsersListParams) {
-	panic("not implemented")
+func (u users) List(params UsersListParams) (*UserList, error) {
+	var userList UserList
+	if err := u.gateway.sendRequest(http.MethodGet, pathUsers, params, &userList); err != nil {
+		return nil, err
+	}
+	return &userList, nil
 }
 
 // UsersListParams ...
 type UsersListParams struct {
-	Limit         int    `json:"limit"`
-	StartingAfter string `json:"starting_after"`
-	EndingBefore  string `json:"ending_before"`
+	ListParams
 }
 
 // Retrieve a user.
