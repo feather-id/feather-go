@@ -121,7 +121,6 @@ func urlEncodeData(data interface{}) string {
 				// Dereference pointer values
 				if rDataField.Kind() == reflect.Ptr {
 					rDataField = rDataField.Elem()
-					// strValue = fmt.Sprintf("%v", rDataField.Elem().Interface())
 				}
 
 				if rDataField.Kind() == reflect.Map {
