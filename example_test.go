@@ -25,15 +25,15 @@ func Example() {
 
 	// Update the user based on their credential status
 	switch credential.Status {
-	case "requires_one_time_code":
+	case feather.CredentialStatusRequiresOneTimeCode:
 		log.Printf("Please check your email for a link to sign in")
 		return
 
-	case "invalid":
+	case feather.CredentialStatusInvalid:
 		log.Printf("Your username and password did not match")
 		return
 
-	case "valid":
+	case feather.CredentialStatusValid:
 		// Life is good :)
 		break
 	}

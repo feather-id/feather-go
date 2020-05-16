@@ -33,9 +33,9 @@ var sampleCredentialEmailRequiresOneTimeCode = feather.Credential{
 	Object:    "credential",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 	ExpiresAt: time.Date(2020, 01, 01, 01, 11, 01, 0, time.UTC),
-	Status:    "requires_one_time_code",
+	Status:    feather.CredentialStatusRequiresOneTimeCode,
 	Token:     feather.String("qwerty"),
-	Type:      "email",
+	Type:      feather.CredentialTypeEmail,
 }
 
 var sampleCredentialEmailValid = feather.Credential{
@@ -43,9 +43,9 @@ var sampleCredentialEmailValid = feather.Credential{
 	Object:    "credential",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 	ExpiresAt: time.Date(2020, 01, 01, 01, 11, 01, 0, time.UTC),
-	Status:    "bar",
+	Status:    feather.CredentialStatusValid,
 	Token:     feather.String("qwerty"),
-	Type:      "email",
+	Type:      feather.CredentialTypeEmail,
 }
 
 func TestCredentialsCreate(t *testing.T) {
@@ -62,7 +62,7 @@ func TestCredentialsCreate(t *testing.T) {
 	defer server.Close()
 	client := createTestClient(server)
 	credential, err := client.Credentials.Create(feather.CredentialsCreateParams{
-		Type:  "email",
+		Type:  feather.CredentialTypeEmail,
 		Email: feather.String("foo@bar.com"),
 	})
 	assert.Equal(t, sampleCredentialEmailRequiresOneTimeCode, *credential)
@@ -89,7 +89,7 @@ func TestCredentialsCreate_Error(t *testing.T) {
 	defer server.Close()
 	client := createTestClient(server)
 	credential, err := client.Credentials.Create(feather.CredentialsCreateParams{
-		Type:     "email",
+		Type:     feather.CredentialTypeEmail,
 		Email:    feather.String("foo@bar.com"),
 		Username: feather.String("foobar"),
 	})

@@ -8,16 +8,6 @@ import "net/http"
 // A Client provides access to the Feather API core resources.
 // You should instantiate and use a client to send requests to
 // the Feather API.
-//
-// Example:
-//     // Create a Feather client
-//     client := feather.New("test_ABC")
-//
-//     // Create an anonymous session
-//     credential, err := client.Sessions.Create(null)
-//     if err != nil {
-//         // Handle error
-//     }
 type Client struct {
 	Credentials Credentials
 	Sessions    Sessions
@@ -38,15 +28,6 @@ type Config struct {
 // New creates a new instance of the Feather client.
 // If additional configuration is needed for the client instance,
 // use the optional Config parameter to add the extra config.
-//
-// Example:
-//     // Create a Feather client with just an API key
-//     client := feather.New("test_ABC")
-//
-//     // Create a Feather client with additional configuration
-//     client := feather.New("test_ABC", &feather.Config{
-//         Host: feather.String("localhost"),
-//     })
 func New(apiKey string, cfgs ...*Config) Client {
 	cfg := Config{}
 	if len(cfgs) > 0 {

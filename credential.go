@@ -6,16 +6,45 @@ import (
 	"time"
 )
 
+// CredentialStatus represents the status of a credential.
+type CredentialStatus string
+
+const (
+	// CredentialStatusValid indicates the provided authentication information was valid.
+	CredentialStatusValid = "valid"
+
+	// CredentialStatusInvalid indicates the provided authentication information was invalid.
+	CredentialStatusInvalid = "invalid"
+
+	// CredentialStatusRequiresOneTimeCode indicates a one-time-code has been sent to the user
+	// and must be returned to verify the provided authentication information.
+	CredentialStatusRequiresOneTimeCode = "requires_one_time_code"
+)
+
+// CredentialType represents the type of the provided authentication information.
+type CredentialType string
+
+const (
+	// CredentialTypeEmail indicates only an email address was provided.
+	CredentialTypeEmail = "email"
+
+	// CredentialTypeEmailPassword indicates an email address and password were provided.
+	CredentialTypeEmailPassword = "email|password"
+
+	// CredentialTypeUsernamePassword indicates a username and password were provided.
+	CredentialTypeUsernamePassword = "username|password"
+)
+
 // Credential is a Feather credential object.
 // https://feather.id/docs/reference/api#credentialObject
 type Credential struct {
-	ID        string    `json:"id"`
-	Object    string    `json:"object"`
-	CreatedAt time.Time `json:"created_at"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Status    string    `json:"status"` // TODO make enum
-	Token     *string   `json:"token"`
-	Type      string    `json:"type"` // TODO make enum
+	ID        string           `json:"id"`
+	Object    string           `json:"object"`
+	CreatedAt time.Time        `json:"created_at"`
+	ExpiresAt time.Time        `json:"expires_at"`
+	Status    CredentialStatus `json:"status"`
+	Token     *string          `json:"token"`
+	Type      CredentialType   `json:"type"` // TODO make enum
 }
 
 // Credentials provides an interface for accessing Feather API credential objects.
@@ -41,10 +70,10 @@ func (c credentials) Create(params CredentialsCreateParams) (*Credential, error)
 
 // CredentialsCreateParams ...
 type CredentialsCreateParams struct {
-	Type     string  `json:"type"` // TODO make enum
-	Email    *string `json:"email"`
-	Username *string `json:"username"`
-	Password *string `json:"password"`
+	Type     CredentialType `json:"type"`
+	Email    *string        `json:"email"`
+	Username *string        `json:"username"`
+	Password *string        `json:"password"`
 }
 
 // Update a credential.
