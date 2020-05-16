@@ -3,9 +3,10 @@ package feather
 // ListMeta ...
 // https://feather.id/docs/reference/api#pagination
 type ListMeta struct {
+	Objet      string `json:"Object"`
+	URL        string `json:"url"`
 	HasMore    bool   `json:"has_more"`
 	TotalCount uint32 `json:"total_count"`
-	URL        string `json:"url"`
 }
 
 // ListParams ...

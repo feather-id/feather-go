@@ -1,5 +1,7 @@
 package feather
 
+import "net/http"
+
 // A Client provides access to the Feather API core resources.
 // You should instantiate and use a client to send requests to
 // the Feather API.
@@ -23,10 +25,11 @@ type Client struct {
 // This is typically only needed in a testing/development environment and should
 // not be used in production code.
 type Config struct {
-	Protocol *string
-	Host     *string
-	Port     *string
-	BasePath *string
+	Protocol   *string
+	Host       *string
+	Port       *string
+	BasePath   *string
+	HTTPClient *http.Client
 }
 
 // New creates a new instance of the Feather client.

@@ -22,6 +22,7 @@ const (
 type gateway struct {
 	apiKey string
 	config Config
+	client *http.Client
 }
 
 func (g gateway) sendRequest(method string, path string, data interface{}, writeTo interface{}) error {
@@ -29,7 +30,7 @@ func (g gateway) sendRequest(method string, path string, data interface{}, write
 	if err != nil {
 		return err
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := g.getClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -49,6 +50,13 @@ func (g gateway) buildRequest(method string, path string, data interface{}) (*ht
 	req.SetBasicAuth(g.apiKey, "")
 	req.Header.Set("Content-Type", contentType)
 	return req, nil
+}
+
+func (g gateway) getClient() *http.Client {
+	if g.config.HTTPClient != nil {
+		return g.config.HTTPClient
+	}
+	return http.DefaultClient
 }
 
 func buildRequestURL(method string, path string, data interface{}, cfg Config) string {

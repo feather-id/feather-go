@@ -6,10 +6,13 @@ import (
 	"time"
 )
 
+// TODO Revoke
+
 // Session is the Feather session object.
 // https://feather.id/docs/reference/api#sessionObject
 type Session struct {
 	ID        string     `json:"id"`
+	Object    string     `json:"object"`
 	Type      string     `json:"type"`   // TODO make enum
 	Status    string     `json:"status"` // TODO make enum
 	Token     *string    `json:"token"`

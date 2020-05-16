@@ -10,6 +10,7 @@ import (
 // https://feather.id/docs/reference/api#userObject
 type User struct {
 	ID        string            `json:"id"`
+	Object    string            `json:"object"`
 	Email     *string           `json:"email"`
 	Username  *string           `json:"username"`
 	Metadata  map[string]string `json:"metadata"`
