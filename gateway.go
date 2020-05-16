@@ -28,11 +28,17 @@ type gateway struct {
 func (g gateway) sendRequest(method string, path string, data interface{}, writeTo interface{}) error {
 	req, err := g.buildRequest(method, path, data)
 	if err != nil {
-		return err
+		return Error{
+			Type:    ErrorTypeValidation,
+			Message: fmt.Sprintf("The HTTP request failed to build because of the following error: %v", err.Error()),
+		}
 	}
 	resp, err := g.getClient().Do(req)
 	if err != nil {
-		return err
+		return Error{
+			Type:    ErrorTypeAPIConnection,
+			Message: fmt.Sprintf("A connection to the Feather API could not be established because of the following error: %v", err.Error()),
+		}
 	}
 	return parseResponse(resp, writeTo)
 }
@@ -156,19 +162,24 @@ func parseResponse(resp *http.Response, into interface{}) error {
 	type object struct {
 		Object string `json:"object"`
 	}
+	unparsableResponseError := Error{
+		Type: ErrorTypeAPI,
+		Message: fmt.Sprintf("The gateway received an unparsable response with status code %v",
+			resp.StatusCode),
+	}
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return unparsableResponseError
 	}
 	var obj object
 	if err = json.Unmarshal(bytes, &obj); err != nil {
-		return err
+		return unparsableResponseError
 	}
 	const objectError = "error"
 	if obj.Object == objectError {
 		var ferr Error
 		if err = json.Unmarshal(bytes, &ferr); err != nil {
-			return err
+			return unparsableResponseError
 		}
 		return ferr
 	}

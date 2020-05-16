@@ -22,6 +22,7 @@ func createTestClient(server *httptest.Server) feather.Client {
 		Protocol:   feather.String("http"),
 		Host:       feather.String(comps[0]),
 		Port:       feather.String(comps[1]),
+		BasePath:   feather.String("/v1"),
 		HTTPClient: server.Client(),
 	})
 }
