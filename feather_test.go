@@ -81,8 +81,8 @@ func TestCredentialsCreate_Error(t *testing.T) {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
-			Type:    "foo_err_type", // TODO enum
-			Code:    "foo_err_code", // TODO enum
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
 			Message: "An error message",
 		})
 	}))
@@ -126,8 +126,8 @@ func TestCredentialsUpdate_Error(t *testing.T) {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
-			Type:    "foo_err_type", // TODO enum
-			Code:    "foo_err_code", // TODO enum
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
 			Message: "An error message",
 		})
 	}))
@@ -203,8 +203,8 @@ func TestSessionsCreate_Error(t *testing.T) {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
-			Type:    "foo_err_type", // TODO enum
-			Code:    "foo_err_code", // TODO enum
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
 			Message: "An error message",
 		})
 	}))
@@ -253,8 +253,8 @@ func TestSessionsList_Error(t *testing.T) {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
-			Type:    "foo_err_type", // TODO enum
-			Code:    "foo_err_code", // TODO enum
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
 			Message: "An error message",
 		})
 	}))
@@ -294,8 +294,8 @@ func TestSessionsRetrieve_Error(t *testing.T) {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
-			Type:    "foo_err_type", // TODO enum
-			Code:    "foo_err_code", // TODO enum
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
 			Message: "An error message",
 		})
 	}))
@@ -333,8 +333,8 @@ func TestSessionsUpgrade_Error(t *testing.T) {
 		w.WriteHeader(400)
 		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
-			Type:    "foo_err_type", // TODO enum
-			Code:    "foo_err_code", // TODO enum
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
 			Message: "An error message",
 		})
 	}))
