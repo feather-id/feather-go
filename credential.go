@@ -10,14 +10,14 @@ import (
 type CredentialStatus string
 
 const (
-	// CredentialStatusValid indicates the provided authentication information was valid.
+	// The provided authentication information was valid.
 	CredentialStatusValid = "valid"
 
-	// CredentialStatusInvalid indicates the provided authentication information was invalid.
+	// The provided authentication information was invalid.
 	CredentialStatusInvalid = "invalid"
 
-	// CredentialStatusRequiresOneTimeCode indicates a one-time-code has been sent to the user
-	// and must be returned to verify the provided authentication information.
+	// A one-time-code has been sent to the user and must be returned
+	// to verify the provided authentication information.
 	CredentialStatusRequiresOneTimeCode = "requires_one_time_code"
 )
 
@@ -25,13 +25,13 @@ const (
 type CredentialType string
 
 const (
-	// CredentialTypeEmail indicates only an email address was provided.
+	// Only an email address was provided.
 	CredentialTypeEmail = "email"
 
-	// CredentialTypeEmailPassword indicates an email address and password were provided.
+	// An email address and password were provided.
 	CredentialTypeEmailPassword = "email|password"
 
-	// CredentialTypeUsernamePassword indicates a username and password were provided.
+	// A username and password were provided.
 	CredentialTypeUsernamePassword = "username|password"
 )
 
