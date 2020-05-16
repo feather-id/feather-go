@@ -1,4 +1,4 @@
-package feather
+package feather_test
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/feather-id/feather-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,35 +16,35 @@ const (
 	sampleAPIKey = "fooKey"
 )
 
-func createTestClient(server *httptest.Server) Client {
+func createTestClient(server *httptest.Server) feather.Client {
 	comps := strings.SplitN(strings.TrimPrefix(server.URL, "http://"), ":", 2)
-	return New(sampleAPIKey, &Config{
-		Protocol:   String("http"),
-		Host:       String(comps[0]),
-		Port:       String(comps[1]),
+	return feather.New(sampleAPIKey, &feather.Config{
+		Protocol:   feather.String("http"),
+		Host:       feather.String(comps[0]),
+		Port:       feather.String(comps[1]),
 		HTTPClient: server.Client(),
 	})
 }
 
 // * * * * * Credentials * * * * * //
 
-var sampleCredentialEmailRequiresOneTimeCode = Credential{
+var sampleCredentialEmailRequiresOneTimeCode = feather.Credential{
 	ID:        "CRD_foo",
 	Object:    "credential",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 	ExpiresAt: time.Date(2020, 01, 01, 01, 11, 01, 0, time.UTC),
 	Status:    "requires_one_time_code",
-	Token:     String("qwerty"),
+	Token:     feather.String("qwerty"),
 	Type:      "email",
 }
 
-var sampleCredentialEmailValid = Credential{
+var sampleCredentialEmailValid = feather.Credential{
 	ID:        "CRD_foo",
 	Object:    "credential",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 	ExpiresAt: time.Date(2020, 01, 01, 01, 11, 01, 0, time.UTC),
 	Status:    "bar",
-	Token:     String("qwerty"),
+	Token:     feather.String("qwerty"),
 	Type:      "email",
 }
 
@@ -60,9 +61,9 @@ func TestCredentialsCreate(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	credential, err := client.Credentials.Create(CredentialsCreateParams{
+	credential, err := client.Credentials.Create(feather.CredentialsCreateParams{
 		Type:  "email",
-		Email: String("foo@bar.com"),
+		Email: feather.String("foo@bar.com"),
 	})
 	assert.Equal(t, sampleCredentialEmailRequiresOneTimeCode, *credential)
 	assert.Nil(t, err)
@@ -78,7 +79,7 @@ func TestCredentialsCreate_Error(t *testing.T) {
 		assert.Equal(t, r.FormValue("email"), "foo@bar.com")
 		assert.Equal(t, r.FormValue("username"), "foobar")
 		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(Error{
+		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
 			Type:    "foo_err_type", // TODO enum
 			Code:    "foo_err_code", // TODO enum
@@ -87,10 +88,10 @@ func TestCredentialsCreate_Error(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	credential, err := client.Credentials.Create(CredentialsCreateParams{
+	credential, err := client.Credentials.Create(feather.CredentialsCreateParams{
 		Type:     "email",
-		Email:    String("foo@bar.com"),
-		Username: String("foobar"),
+		Email:    feather.String("foo@bar.com"),
+		Username: feather.String("foobar"),
 	})
 	assert.Nil(t, credential)
 	assert.Equal(t, "An error message", err.Error())
@@ -108,8 +109,8 @@ func TestCredentialsUpdate(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	credential, err := client.Credentials.Update("CRD_foo", CredentialsUpdateParams{
-		OneTimeCode: String("foobar"),
+	credential, err := client.Credentials.Update("CRD_foo", feather.CredentialsUpdateParams{
+		OneTimeCode: feather.String("foobar"),
 	})
 	assert.Equal(t, sampleCredentialEmailValid, *credential)
 	assert.Nil(t, err)
@@ -123,7 +124,7 @@ func TestCredentialsUpdate_Error(t *testing.T) {
 		assert.Equal(t, r.URL.String(), "/v1/credentials/CRD_foo")
 		assert.Equal(t, r.FormValue("one_time_code"), "")
 		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(Error{
+		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
 			Type:    "foo_err_type", // TODO enum
 			Code:    "foo_err_code", // TODO enum
@@ -132,43 +133,43 @@ func TestCredentialsUpdate_Error(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	credential, err := client.Credentials.Update("CRD_foo", CredentialsUpdateParams{})
+	credential, err := client.Credentials.Update("CRD_foo", feather.CredentialsUpdateParams{})
 	assert.Nil(t, credential)
 	assert.Equal(t, "An error message", err.Error())
 }
 
 // * * * * * Sessions * * * * * //
 
-var sampleSessionAnonymous = Session{
+var sampleSessionAnonymous = feather.Session{
 	ID:        "SES_foo",
 	Object:    "session",
 	Type:      "anonymous", // TODO enum
 	Status:    "active",    // TODO enum
-	Token:     String("qwerty"),
+	Token:     feather.String("qwerty"),
 	UserID:    "USR_foo",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 	RevokedAt: nil,
 }
 
-var sampleSessionAuthenticated = Session{
+var sampleSessionAuthenticated = feather.Session{
 	ID:        "SES_bar",
 	Object:    "session",
 	Type:      "authenticated", // TODO enum
 	Status:    "active",        // TODO enum
-	Token:     String("qwerty"),
+	Token:     feather.String("qwerty"),
 	UserID:    "USR_foo",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
-	RevokedAt: Time(time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC)),
+	RevokedAt: feather.Time(time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC)),
 }
 
-var sampleSessionList = SessionList{
-	ListMeta: ListMeta{
+var sampleSessionList = feather.SessionList{
+	ListMeta: feather.ListMeta{
 		Objet:      "list",
 		URL:        "/v1/sessions",
 		HasMore:    false,
 		TotalCount: 2,
 	},
-	Data: []*Session{
+	Data: []*feather.Session{
 		&sampleSessionAnonymous,
 		&sampleSessionAuthenticated,
 	},
@@ -185,8 +186,8 @@ func TestSessionsCreate(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	session, err := client.Sessions.Create(SessionsCreateParams{
-		CredentialToken: String("bar"),
+	session, err := client.Sessions.Create(feather.SessionsCreateParams{
+		CredentialToken: feather.String("bar"),
 	})
 	assert.Equal(t, sampleSessionAnonymous, *session)
 	assert.Nil(t, err)
@@ -200,7 +201,7 @@ func TestSessionsCreate_Error(t *testing.T) {
 		assert.Equal(t, r.URL.String(), "/v1/sessions")
 		assert.Equal(t, r.FormValue("credential_token"), "-1")
 		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(Error{
+		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
 			Type:    "foo_err_type", // TODO enum
 			Code:    "foo_err_code", // TODO enum
@@ -209,8 +210,8 @@ func TestSessionsCreate_Error(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	session, err := client.Sessions.Create(SessionsCreateParams{
-		CredentialToken: String("-1"),
+	session, err := client.Sessions.Create(feather.SessionsCreateParams{
+		CredentialToken: feather.String("-1"),
 	})
 	assert.Nil(t, session)
 	assert.Equal(t, err.Error(), "An error message")
@@ -230,11 +231,11 @@ func TestSessionsList(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	sessionList, err := client.Sessions.List(SessionsListParams{
-		UserID: String("USR_foo"),
-		ListParams: ListParams{
-			Limit:         UInt32(42),
-			StartingAfter: String("SES_foo"),
+	sessionList, err := client.Sessions.List(feather.SessionsListParams{
+		UserID: feather.String("USR_foo"),
+		ListParams: feather.ListParams{
+			Limit:         feather.UInt32(42),
+			StartingAfter: feather.String("SES_foo"),
 		},
 	})
 	assert.Equal(t, sampleSessionList, *sessionList)
@@ -250,7 +251,7 @@ func TestSessionsList_Error(t *testing.T) {
 		assert.Equal(t, r.URL.Query().Get("user_id"), "")
 		assert.Equal(t, r.URL.Query().Get("limit"), "42")
 		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(Error{
+		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
 			Type:    "foo_err_type", // TODO enum
 			Code:    "foo_err_code", // TODO enum
@@ -259,9 +260,9 @@ func TestSessionsList_Error(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	sessionList, err := client.Sessions.List(SessionsListParams{
-		ListParams: ListParams{
-			Limit: UInt32(42),
+	sessionList, err := client.Sessions.List(feather.SessionsListParams{
+		ListParams: feather.ListParams{
+			Limit: feather.UInt32(42),
 		},
 	})
 	assert.Nil(t, sessionList)
@@ -291,7 +292,7 @@ func TestSessionsRetrieve_Error(t *testing.T) {
 		assert.Equal(t, r.Method, http.MethodGet)
 		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/sessions/"))
 		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(Error{
+		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
 			Type:    "foo_err_type", // TODO enum
 			Code:    "foo_err_code", // TODO enum
@@ -316,8 +317,8 @@ func TestSessionsUpgrade(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	session, err := client.Sessions.Upgrade("SES_bar", SessionsUpgradeParams{
-		CredentialToken: String("qwerty"),
+	session, err := client.Sessions.Upgrade("SES_bar", feather.SessionsUpgradeParams{
+		CredentialToken: feather.String("qwerty"),
 	})
 	assert.Equal(t, sampleSessionAuthenticated, *session)
 	assert.Nil(t, err)
@@ -330,7 +331,7 @@ func TestSessionsUpgrade_Error(t *testing.T) {
 		assert.Equal(t, r.Method, http.MethodPost)
 		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/sessions/SES_bar/upgrade"))
 		w.WriteHeader(400)
-		json.NewEncoder(w).Encode(Error{
+		json.NewEncoder(w).Encode(feather.Error{
 			Object:  "error",
 			Type:    "foo_err_type", // TODO enum
 			Code:    "foo_err_code", // TODO enum
@@ -339,8 +340,8 @@ func TestSessionsUpgrade_Error(t *testing.T) {
 	}))
 	defer server.Close()
 	client := createTestClient(server)
-	session, err := client.Sessions.Upgrade("SES_bar", SessionsUpgradeParams{
-		CredentialToken: String("-1"),
+	session, err := client.Sessions.Upgrade("SES_bar", feather.SessionsUpgradeParams{
+		CredentialToken: feather.String("-1"),
 	})
 	assert.Nil(t, session)
 	assert.Equal(t, "An error message", err.Error())
