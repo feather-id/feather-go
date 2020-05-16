@@ -1,3 +1,6 @@
+// Package feather provides a convenient interface to the Feather API for applications running in a Go server environment.
+//
+// For more information on Feather API, please check out our docs at https://feather.id/docs.
 package feather
 
 import "net/http"
