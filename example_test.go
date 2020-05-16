@@ -18,12 +18,12 @@ func Example() {
 
 	// Create a credential
 	credential, _ := client.Credentials.Create(feather.CredentialsCreateParams{
-		Type:     "username|password",
+		Type:     feather.CredentialTypeUsernamePassword,
 		Username: feather.String("jdoe"),
 		Password: feather.String("pa$$w0rd"),
 	})
 
-	// Update the user based on their credential status
+	// Inform the user of their credential status
 	switch credential.Status {
 	case feather.CredentialStatusRequiresOneTimeCode:
 		log.Printf("Please check your email for a link to sign in")
@@ -43,7 +43,7 @@ func Example() {
 		CredentialToken: credential.Token,
 	})
 
-	// Add some custom metadata to the user
+	// Add custom metadata to the user
 	user, _ := client.Users.Update(session.UserID, feather.UsersUpdateParams{
 		Metadata: &map[string]string{
 			"highScore": "123",

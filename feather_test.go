@@ -143,8 +143,8 @@ func TestCredentialsUpdate_Error(t *testing.T) {
 var sampleSessionAnonymous = feather.Session{
 	ID:        "SES_foo",
 	Object:    "session",
-	Type:      "anonymous", // TODO enum
-	Status:    "active",    // TODO enum
+	Type:      feather.SessionTypeAnonymous,
+	Status:    feather.SessionStatusActive,
 	Token:     feather.String("qwerty"),
 	UserID:    "USR_foo",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
@@ -154,8 +154,8 @@ var sampleSessionAnonymous = feather.Session{
 var sampleSessionAuthenticated = feather.Session{
 	ID:        "SES_bar",
 	Object:    "session",
-	Type:      "authenticated", // TODO enum
-	Status:    "active",        // TODO enum
+	Type:      feather.SessionTypeAuthenticated,
+	Status:    feather.SessionStatusRevoked,
 	Token:     feather.String("qwerty"),
 	UserID:    "USR_foo",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),

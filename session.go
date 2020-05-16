@@ -8,17 +8,42 @@ import (
 
 // TODO Revoke
 
+// SessionStatus represents the status of a session.
+type SessionStatus string
+
+const (
+	// The session is currently active.
+	SessionStatusActive = "active"
+
+	// The session has expired.
+	SessionStatusExpired = "expired"
+
+	// The session has been revoked.
+	SessionStatusRevoked = "revoked"
+)
+
+// SessionType represents the type of the session.
+type SessionType string
+
+const (
+	// The session user has not provided a valid credential.
+	SessionTypeAnonymous = "anonymous"
+
+	// The session user has provided a valid credential.
+	SessionTypeAuthenticated = "authenticated"
+)
+
 // Session is the Feather session object.
 // https://feather.id/docs/reference/api#sessionObject
 type Session struct {
-	ID        string     `json:"id"`
-	Object    string     `json:"object"`
-	Type      string     `json:"type"`   // TODO make enum
-	Status    string     `json:"status"` // TODO make enum
-	Token     *string    `json:"token"`
-	UserID    string     `json:"user_id"`
-	CreatedAt time.Time  `json:"created_at"`
-	RevokedAt *time.Time `json:"revoked_at"`
+	ID        string        `json:"id"`
+	Object    string        `json:"object"`
+	Type      SessionType   `json:"type"`
+	Status    SessionStatus `json:"status"`
+	Token     *string       `json:"token"`
+	UserID    string        `json:"user_id"`
+	CreatedAt time.Time     `json:"created_at"`
+	RevokedAt *time.Time    `json:"revoked_at"`
 }
 
 // SessionList is a list of Feather session objects.
