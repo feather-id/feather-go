@@ -8,3 +8,9 @@ all: test
 # Run tests
 test:
 	go test -cover $(PKGS)
+
+coverage:
+	go test -cover $(PKGS) -covermode=count -coverprofile=combined.coverprofile ./...
+
+clean:
+	find . -name \*.coverprofile -delete

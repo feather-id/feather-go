@@ -1,0 +1,18 @@
+language: go
+
+go:
+  - tip
+
+before_install:
+  # Use `travis_retry` because `go get` occasionally fails.
+  - travis_retry go get -u github.com/stretchr/testify/assert
+  - travis_retry go get -u github.com/mattn/goveralls
+
+script:
+  - make
+  - make coverage
+
+after_script:
+  - $GOPATH/bin/goveralls -service=travis-ci -coverprofile=combined.coverprofile
+
+sudo: false
