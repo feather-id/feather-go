@@ -23,10 +23,10 @@ type Client struct {
 // This is typically only needed in a testing/development environment and should
 // not be used in production code.
 type Config struct {
-	Protocol string
-	Host     string
-	Port     string
-	BasePath string
+	Protocol *string
+	Host     *string
+	Port     *string
+	BasePath *string
 }
 
 // New creates a new instance of the Feather client.
@@ -38,7 +38,9 @@ type Config struct {
 //     client := feather.New("test_ABC")
 //
 //     // Create a Feather client with additional configuration
-//     client := feather.New("test_ABC", &feather.Config{ Host: "localhost" })
+//     client := feather.New("test_ABC", &feather.Config{
+//         Host: feather.String("localhost"),
+//     })
 func New(apiKey string, cfgs ...*Config) Client {
 	cfg := Config{}
 	if len(cfgs) > 0 {

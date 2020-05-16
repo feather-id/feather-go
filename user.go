@@ -9,12 +9,12 @@ import (
 // User is the Feather user object.
 // https://feather.id/docs/reference/api#userObject
 type User struct {
-	ID        string    `json:"id"`
-	Email     *string   `json:"email"`
-	Username  *string   `json:"username"`
-	Metadata  string    `json:"metadata"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        string            `json:"id"`
+	Email     *string           `json:"email"`
+	Username  *string           `json:"username"`
+	Metadata  map[string]string `json:"metadata"`
+	CreatedAt time.Time         `json:"created_at"`
+	UpdatedAt time.Time         `json:"updated_at"`
 }
 
 // UserList is a list of Feather user objects.
@@ -75,7 +75,7 @@ func (u users) Update(id string, params UsersUpdateParams) (*User, error) {
 
 // UsersUpdateParams ...
 type UsersUpdateParams struct {
-	Email    *string `json:"email"`
-	Username *string `json:"username"`
-	Metadata string  `json:"metadata"`
+	Email    *string            `json:"email"`
+	Username *string            `json:"username"`
+	Metadata *map[string]string `json:"metadata"`
 }

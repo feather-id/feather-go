@@ -6,7 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	netUrl "net/url"
+	"net/url"
 	"reflect"
 	"strings"
 )
@@ -53,20 +53,20 @@ func (g gateway) buildRequest(method string, path string, data interface{}) (*ht
 
 func buildRequestURL(method string, path string, data interface{}, cfg Config) string {
 	protocol := defaultProtocol
-	if cfg.Protocol != "" {
-		protocol = cfg.Protocol
+	if cfg.Protocol != nil {
+		protocol = *cfg.Protocol
 	}
 	host := defaultHost
-	if cfg.Host != "" {
-		host = cfg.Host
+	if cfg.Host != nil {
+		host = *cfg.Host
 	}
 	port := defaultPort
-	if cfg.Port != "" {
-		port = cfg.Port
+	if cfg.Port != nil {
+		port = *cfg.Port
 	}
 	basePath := defaultBasePath
-	if cfg.BasePath != "" {
-		basePath = cfg.BasePath
+	if cfg.BasePath != nil {
+		basePath = *cfg.BasePath
 	}
 	query := ""
 	if method == http.MethodGet {
@@ -85,6 +85,11 @@ func buildRequestBody(data interface{}) io.Reader {
 }
 
 func urlEncodeData(data interface{}) string {
+	if data == nil {
+		return ""
+	}
+
+	// Joins two strings of url-encoded data together
 	joinEncData := func(a string, b string) string {
 		if a == "" {
 			return b
@@ -93,27 +98,50 @@ func urlEncodeData(data interface{}) string {
 		}
 		return a + "&" + b
 	}
+
+	// Assumes data is a struct
+	// Iterate through the fields of the struct and url-encodes the field/value pairs
 	encData := ""
-	if data != nil {
-		rVal := reflect.ValueOf(data)
-		rType := reflect.TypeOf(data)
-		urlVals := netUrl.Values{}
-		for i := 0; i < rVal.NumField(); i++ {
-			if rVal.Field(i).Kind() != reflect.Ptr || !rVal.Field(i).IsNil() {
-				if rVal.Field(i).Kind() == reflect.Struct {
-					// Recursively flatten the request
-					encData = joinEncData(encData, urlEncodeData(rVal.Field(i).Interface()))
-				} else if tag := rType.Field(i).Tag.Get("json"); tag != "" {
-					var f = rVal.Field(i)
-					if f.Kind() == reflect.Ptr {
-						f = f.Elem()
+	rData := reflect.ValueOf(data)
+	rDataType := reflect.TypeOf(data)
+	urlVals := url.Values{}
+	for i := 0; i < rData.NumField(); i++ {
+
+		// Only encode non-nil values
+		if rData.Field(i).Kind() != reflect.Ptr || !rData.Field(i).IsNil() {
+			if rData.Field(i).Kind() == reflect.Struct {
+
+				// If the value is a struct, recursively flatten the request
+				encData = joinEncData(encData, urlEncodeData(rData.Field(i).Interface()))
+
+			} else if tag := rDataType.Field(i).Tag.Get("json"); tag != "" {
+				// Otherwise, get the json tag for this value...
+				var rDataField = rData.Field(i)
+
+				// Dereference pointer values
+				if rDataField.Kind() == reflect.Ptr {
+					rDataField = rDataField.Elem()
+					// strValue = fmt.Sprintf("%v", rDataField.Elem().Interface())
+				}
+
+				if rDataField.Kind() == reflect.Map {
+					// If the value is a map, create a special key
+					iter := rDataField.MapRange()
+					for iter.Next() {
+						k := iter.Key().Interface()
+						v := iter.Value().Interface()
+						urlVals.Add(fmt.Sprintf("%v[%v]", tag, k), fmt.Sprintf("%v", v))
 					}
-					urlVals.Add(tag, fmt.Sprintf("%v", f.Interface()))
+				} else {
+					// Otherwise, just cast the value to a string
+					urlVals.Add(tag, fmt.Sprintf("%v", rDataField.Interface()))
 				}
 			}
 		}
-		encData = joinEncData(encData, urlVals.Encode())
 	}
+
+	// Encode the collected key/vale pairs
+	encData = joinEncData(encData, urlVals.Encode())
 	return encData
 }
 

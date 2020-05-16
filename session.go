@@ -67,7 +67,7 @@ func (s sessions) List(params SessionsListParams) (*SessionList, error) {
 // SessionsListParams ...
 type SessionsListParams struct {
 	ListParams
-	UserID string `json:"user_id"`
+	UserID *string `json:"user_id"`
 }
 
 // Retrieve a session.
