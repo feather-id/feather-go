@@ -348,3 +348,170 @@ func TestSessionsUpgrade_Error(t *testing.T) {
 }
 
 // * * * * * Users * * * * * //
+
+var sampleUserEmpty = feather.User{
+	ID:        "USR_foo",
+	Object:    "user",
+	Email:     nil,
+	Username:  nil,
+	Metadata:  map[string]string{},
+	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+	UpdatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+}
+
+var sampleUser = feather.User{
+	ID:        "USR_bar",
+	Object:    "user",
+	Email:     nil,
+	Username:  feather.String("foobar"),
+	Metadata:  map[string]string{"highScore": "123"},
+	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+	UpdatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+}
+
+var sampleUserList = feather.UserList{
+	ListMeta: feather.ListMeta{
+		Objet:      "list",
+		URL:        "/v1/users",
+		HasMore:    false,
+		TotalCount: 2,
+	},
+	Data: []*feather.User{
+		&sampleUserEmpty,
+		&sampleUser,
+	},
+}
+
+func TestUsersList(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodGet)
+		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/users?"))
+		assert.Equal(t, r.URL.Query().Get("limit"), "42")
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(sampleUserList)
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	userList, err := client.Users.List(feather.UsersListParams{
+		ListParams: feather.ListParams{
+			Limit: feather.UInt32(42),
+		},
+	})
+	assert.Equal(t, sampleUserList, *userList)
+	assert.Nil(t, err)
+}
+
+func TestUsersList_Error(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodGet)
+		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/users?"))
+		assert.Equal(t, r.URL.Query().Get("limit"), "42")
+		w.WriteHeader(429)
+		json.NewEncoder(w).Encode(feather.Error{
+			Object:  "error",
+			Type:    feather.ErrorTypeRateLimit,
+			Message: "An error message",
+		})
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	userList, err := client.Users.List(feather.UsersListParams{
+		ListParams: feather.ListParams{
+			Limit: feather.UInt32(42),
+		},
+	})
+	assert.Nil(t, userList)
+	assert.Equal(t, "An error message", err.Error())
+}
+
+func TestUsersRetrieve(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodGet)
+		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/users/USR_foo"))
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(sampleUserEmpty)
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	user, err := client.Users.Retrieve("USR_foo")
+	assert.Equal(t, sampleUserEmpty, *user)
+	assert.Nil(t, err)
+}
+
+func TestUsersRetrieve_Error(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodGet)
+		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/users/"))
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(feather.Error{
+			Object:  "error",
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
+			Message: "An error message",
+		})
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	user, err := client.Users.Retrieve("")
+	assert.Nil(t, user)
+	assert.Equal(t, "An error message", err.Error())
+}
+
+func TestUsersUpdate(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodPost)
+		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/users/USR_bar"))
+		assert.Equal(t, r.FormValue("username"), "foobar")
+		assert.Equal(t, r.FormValue("metadata[highScore]"), "123")
+		w.WriteHeader(201)
+		json.NewEncoder(w).Encode(sampleUser)
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	user, err := client.Users.Update("USR_bar", feather.UsersUpdateParams{
+		Username: feather.String("foobar"),
+		Metadata: &map[string]string{
+			"highScore": "123",
+		},
+	})
+	assert.Equal(t, sampleUser, *user)
+	assert.Nil(t, err)
+}
+
+func TestUsersUpdate_Error(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodPost)
+		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/users/"))
+		assert.Equal(t, r.FormValue("username"), "foobar")
+		assert.Equal(t, r.FormValue("metadata[highScore]"), "123")
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(feather.Error{
+			Object:  "error",
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
+			Message: "An error message",
+		})
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	user, err := client.Users.Update("", feather.UsersUpdateParams{
+		Username: feather.String("foobar"),
+		Metadata: &map[string]string{
+			"highScore": "123",
+		},
+	})
+	assert.Nil(t, user)
+	assert.Equal(t, "An error message", err.Error())
+}
