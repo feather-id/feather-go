@@ -1,6 +1,6 @@
 # Feather Go Library
 
-[![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/feather-id/feather-go) [![Build Status](https://travis-ci.org/feather-id/feather-go.svg?branch=master)](https://travis-ci.org/feather-id/feather-go) [![Coverage Status](https://coveralls.io/repos/github/feather-id/feather-go/badge.svg?branch=master)](https://coveralls.io/github/feather-id/feather-go?branch=master)
+[![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/feather-id/feather-go) [![Build Status](https://travis-ci.org/feather-id/feather-go.svg?branch=master)](https://travis-ci.org/feather-id/feather-go) [![Coverage Status](https://coveralls.io/repos/github/feather-id/feather-go/badge.svg?branch=master&service=github)](https://coveralls.io/github/feather-id/feather-go?branch=master&service=github)
 
 This library provides a convenient interface to the Feather API for applications running in a Go server environment.
 
