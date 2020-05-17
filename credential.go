@@ -58,6 +58,12 @@ type credentials struct {
 	gateway gateway
 }
 
+func newCredentialsResource(g gateway) credentials {
+	return credentials{
+		gateway: g,
+	}
+}
+
 // Create a new credential.
 // https://feather.id/docs/reference/api#createCredential
 func (c credentials) Create(params CredentialsCreateParams) (*Credential, error) {

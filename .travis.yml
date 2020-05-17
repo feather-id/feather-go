@@ -7,6 +7,7 @@ before_install:
   # Use `travis_retry` because `go get` occasionally fails.
   - travis_retry go get -u github.com/stretchr/testify/assert
   - travis_retry go get -u github.com/mattn/goveralls
+  - travis_retry go get -u github.com/dgrijalva/jwt-go
 
 script:
   - make

@@ -37,6 +37,12 @@ type users struct {
 	gateway gateway
 }
 
+func newUsersResource(g gateway) users {
+	return users{
+		gateway: g,
+	}
+}
+
 // List a project's users.
 // https://feather.id/docs/reference/api#listUsers
 func (u users) List(params UsersListParams) (*UserList, error) {

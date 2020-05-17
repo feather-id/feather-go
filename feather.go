@@ -38,8 +38,8 @@ func New(apiKey string, cfgs ...*Config) Client {
 		config: cfg,
 	}
 	return Client{
-		Credentials: credentials{gateway: g},
-		Sessions:    sessions{gateway: g},
-		Users:       users{gateway: g},
+		Credentials: newCredentialsResource(g),
+		Sessions:    newSessionsResource(g),
+		Users:       newUsersResource(g),
 	}
 }
