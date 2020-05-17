@@ -12,7 +12,7 @@ $ go get -u github.com/feather-id/feather-go
 
 ## Usage
 
-Initialize a Feather client with your project's API key, available on the [Feather Dashboard](https://feather.id/dashboard).
+Initialize a Feather client with your project's API key, available on the [Feather Dashboard](https://feather.id/dashboard):
 
 ```go
 import "github.com/feather-id/feather-go"
@@ -20,16 +20,18 @@ import "github.com/feather-id/feather-go"
 client := feather.New("live_...")
 ```
 
-The example below will walk through a simple and common authentication flow:
+### A simple flow
 
-- Create a credential given a username and password from your user.
-- Create an authenticated session with the credential token.
-- Add custom metadata to the user to save their current state.
+The example below walks through a simple and common authentication flow:
+
+1. Create a credential given a username and password.
+2. Use the credential to create an authenticated session.
+3. Add custom metadata to the session user to save their current state.
 
 Note this example ignores errors for brevity. You should not ignore errors in production code!
 
 ```go
-// 1) Create a credential
+// 1. Create a credential
 credential, _ := client.Credentials.Create(feather.CredentialsCreateParams{
 	Type:     feather.CredentialTypeUsernamePassword,
 	Username: feather.String("jdoe"),
@@ -51,12 +53,12 @@ case feather.CredentialStatusValid:
 	break
 }
 
-// 2) Create an authenticated session
+// 2. Create an authenticated session
 session, _ := client.Sessions.Create(feather.SessionsCreateParams{
   CredentialToken: credential.Token,
 })
 
-// 3) Add custom metadata to the user
+// 3. Add custom metadata to the user
 user, _ := client.Users.Update(session.UserID, feather.UsersUpdateParams{
 	Metadata: &map[string]string{
 		"highScore": "123",
@@ -68,7 +70,7 @@ log.Printf("Your high score is: %v", user.Metadata["highScore"])
 
 ## Development
 
-To run tests, simply call:
+To run unit tests, simply call:
 
 ```sh
 $ make test
