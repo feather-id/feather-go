@@ -11,10 +11,7 @@ func Example() {
 	// You should not ignore errors in production code.
 
 	// Initialize the client with your API key
-	client := feather.New("YOUR_API_KEY")
-
-	// Create an anonymous session
-	session, _ := client.Sessions.Create(feather.SessionsCreateParams{})
+	client := feather.New("live_...")
 
 	// Create a credential
 	credential, _ := client.Credentials.Create(feather.CredentialsCreateParams{
@@ -34,12 +31,12 @@ func Example() {
 		return
 
 	case feather.CredentialStatusValid:
-		// Life is good :)
+		// The username and password were valid!
 		break
 	}
 
-	// Upgrade the session
-	session, _ = client.Sessions.Upgrade(session.ID, feather.SessionsUpgradeParams{
+	// Create an authenticated session
+	session, _ := client.Sessions.Create(feather.SessionsCreateParams{
 		CredentialToken: credential.Token,
 	})
 
