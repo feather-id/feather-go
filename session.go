@@ -2,10 +2,7 @@ package feather
 
 import (
 	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -151,7 +148,7 @@ func (s sessions) Validate(params SessionsValidateParams) (*Session, error) {
 		return nil, Error{
 			Type:    ErrorTypeValidation,
 			Code:    ErrorCodeSessionTokenInvalid,
-			Message: "A session token was provided",
+			Message: "No session tokens were not provided for validation",
 		}
 	}
 
@@ -215,7 +212,7 @@ func (s *sessions) parseSessionToken(tokenStr string) (*Session, error) {
 		return nil, invalidTokenError
 	}
 	sessionTypeStr, ok := claims["typ"].(string)
-	if !ok {
+	if !ok || (sessionTypeStr != SessionTypeAnonymous && sessionTypeStr != SessionTypeAuthenticated) {
 		return nil, invalidTokenError
 	}
 	cat, ok := claims["cat"].(float64)
@@ -237,8 +234,11 @@ func (s *sessions) parseSessionToken(tokenStr string) (*Session, error) {
 	}
 
 	// Check if the token is expired
-	isExpired := !claims.VerifyExpiresAt(time.Now().Unix(), true)
-	if isExpired {
+	exp, ok := claims["exp"].(float64)
+	if !ok {
+		return nil, invalidTokenError
+	}
+	if time.Now().After(time.Unix(int64(exp), 0)) {
 		return &session, Error{
 			Type:    ErrorTypeValidation,
 			Code:    ErrorCodeSessionTokenExpired,
@@ -251,57 +251,8 @@ func (s *sessions) parseSessionToken(tokenStr string) (*Session, error) {
 
 func (s *sessions) getValidationKey(token *jwt.Token) (interface{}, error) {
 	keyID, ok := token.Header["kid"].(string)
-	if !ok {
+	if !ok || keyID == "" {
 		return nil, errors.New("Header 'kid' not found")
 	}
 	return s.getPublicKey(keyID)
-}
-
-func (s *sessions) getPublicKey(keyID string) (*rsa.PublicKey, error) {
-
-	// Input validation
-	if keyID == "" {
-		return nil, fmt.Errorf("RSA key ID not provided")
-	}
-
-	// Check the cache
-	if publicKey, ok := s.cachedPublicKeys[keyID]; ok {
-		return publicKey, nil
-	}
-
-	// Query Feather API for the key
-	type publicKeyResponse struct {
-		ID     string `json:"id"`
-		Object string `json:"object"`
-		PEM    string `json:"pem"`
-	}
-	var pubKeyResponse publicKeyResponse
-	path := strings.Join([]string{pathPublicKeys, keyID}, "/")
-	if err := s.gateway.sendRequest(http.MethodGet, path, nil, &pubKeyResponse); err != nil {
-		return nil, err
-	}
-
-	// Decode and parse the key
-	pubPem, _ := pem.Decode([]byte(pubKeyResponse.PEM))
-	if pubPem == nil {
-		return nil, fmt.Errorf("Failed to parse public key %v", keyID)
-	}
-	if pubPem.Type != "RSA PUBLIC KEY" {
-		return nil, fmt.Errorf("Decoded key is of the wrong type (%v)", pubPem.Type)
-	}
-	var parsedKey interface{}
-	var err error
-	if parsedKey, err = x509.ParsePKIXPublicKey(pubPem.Bytes); err != nil {
-		if parsedKey, err = x509.ParsePKCS1PublicKey(pubPem.Bytes); err != nil {
-			return nil, err
-		}
-	}
-	publicKey, ok := parsedKey.(*rsa.PublicKey)
-	if !ok {
-		return nil, fmt.Errorf("Failed to parse public key %v", keyID)
-	}
-
-	// Cache and return
-	s.cachedPublicKeys[keyID] = publicKey
-	return publicKey, nil
 }
