@@ -10,8 +10,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// TODO Revoke
-
 const (
 	featherIssuer = "feather.id"
 )
@@ -67,6 +65,7 @@ type Sessions interface {
 	Create(params SessionsCreateParams) (*Session, error)
 	List(params SessionsListParams) (*SessionList, error)
 	Retrieve(id string) (*Session, error)
+	Revoke(id string, params SessionsRevokeParams) (*Session, error)
 	Upgrade(id string, params SessionsUpgradeParams) (*Session, error)
 	Validate(params SessionsValidateParams) (*Session, error)
 }
@@ -123,6 +122,22 @@ func (s sessions) Retrieve(id string) (*Session, error) {
 		return nil, err
 	}
 	return &session, nil
+}
+
+// Revoke a session.
+// https://feather.id/docs/reference/api#revokeSession
+func (s sessions) Revoke(id string, params SessionsRevokeParams) (*Session, error) {
+	var session Session
+	path := strings.Join([]string{pathSessions, id, "revoke"}, "/")
+	if err := s.gateway.sendRequest(http.MethodPost, path, params, &session); err != nil {
+		return nil, err
+	}
+	return &session, nil
+}
+
+// SessionsRevokeParams ...
+type SessionsRevokeParams struct {
+	SessionToken *string `json:"session_token"`
 }
 
 // Upgrade a session.

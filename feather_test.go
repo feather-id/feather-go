@@ -351,6 +351,49 @@ func TestSessionsRetrieve_Error(t *testing.T) {
 	assert.Equal(t, "An error message", err.Error())
 }
 
+func TestSessionsRevoke(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodPost)
+		assert.Equal(t, r.URL.String(), "/v1/sessions/SES_bar/revoke")
+		assert.Equal(t, r.FormValue("session_token"), "qwerty")
+		w.WriteHeader(201)
+		json.NewEncoder(w).Encode(sampleSessionAuthenticated)
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	session, err := client.Sessions.Revoke("SES_bar", feather.SessionsRevokeParams{
+		SessionToken: feather.String("qwerty"),
+	})
+	assert.Equal(t, sampleSessionAuthenticated, *session)
+	assert.Nil(t, err)
+}
+
+func TestSessionsRevoke_Error(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodPost)
+		assert.Equal(t, r.URL.String(), "/v1/sessions/SES_bar/revoke")
+		assert.Equal(t, r.FormValue("session_token"), "-1")
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(feather.Error{
+			Object:  "error",
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
+			Message: "An error message",
+		})
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	session, err := client.Sessions.Revoke("SES_bar", feather.SessionsRevokeParams{
+		SessionToken: feather.String("-1"),
+	})
+	assert.Nil(t, session)
+	assert.Equal(t, err.Error(), "An error message")
+}
+
 func TestSessionsUpgrade(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		username, _, _ := r.BasicAuth()
