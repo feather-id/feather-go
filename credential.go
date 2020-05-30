@@ -18,7 +18,7 @@ const (
 
 	// A one-time-code has been sent to the user and must be returned
 	// to verify the provided authentication information.
-	CredentialStatusRequiresOneTimeCode = "requires_one_time_code"
+	CredentialStatusRequiresVerificationCode = "requires_verification_code"
 )
 
 // CredentialType represents the type of the provided authentication information.
@@ -95,5 +95,5 @@ func (c credentials) Update(id string, params CredentialsUpdateParams) (*Credent
 
 // CredentialsUpdateParams ...
 type CredentialsUpdateParams struct {
-	OneTimeCode *string `json:"one_time_code"`
+	VerificationCode *string `json:"verification_code"`
 }

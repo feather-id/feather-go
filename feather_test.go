@@ -34,7 +34,7 @@ var sampleCredentialEmailRequiresOneTimeCode = feather.Credential{
 	Object:    "credential",
 	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 	ExpiresAt: time.Date(2020, 01, 01, 01, 11, 01, 0, time.UTC),
-	Status:    feather.CredentialStatusRequiresOneTimeCode,
+	Status:    feather.CredentialStatusRequiresVerificationCode,
 	Token:     feather.String("qwerty"),
 	Type:      feather.CredentialTypeEmail,
 }
@@ -104,14 +104,14 @@ func TestCredentialsUpdate(t *testing.T) {
 		assert.Equal(t, username, sampleAPIKey)
 		assert.Equal(t, r.Method, http.MethodPost)
 		assert.Equal(t, r.URL.String(), "/v1/credentials/CRD_foo")
-		assert.Equal(t, r.FormValue("one_time_code"), "foobar")
+		assert.Equal(t, r.FormValue("verification_code"), "foobar")
 		w.WriteHeader(201)
 		json.NewEncoder(w).Encode(sampleCredentialEmailValid)
 	}))
 	defer server.Close()
 	client := createTestClient(server)
 	credential, err := client.Credentials.Update("CRD_foo", feather.CredentialsUpdateParams{
-		OneTimeCode: feather.String("foobar"),
+		VerificationCode: feather.String("foobar"),
 	})
 	assert.Equal(t, sampleCredentialEmailValid, *credential)
 	assert.Nil(t, err)
