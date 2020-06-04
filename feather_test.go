@@ -141,10 +141,9 @@ func TestCredentialsUpdate_Error(t *testing.T) {
 
 // * * * * * Sessions * * * * * //
 
-var sampleSessionAnonymous = feather.Session{
+var sampleSessionActive = feather.Session{
 	ID:        "SES_foo",
 	Object:    "session",
-	Type:      feather.SessionTypeAnonymous,
 	Status:    feather.SessionStatusActive,
 	Token:     feather.String("qwerty"),
 	UserID:    "USR_foo",
@@ -152,10 +151,9 @@ var sampleSessionAnonymous = feather.Session{
 	RevokedAt: nil,
 }
 
-var sampleSessionAuthenticated = feather.Session{
+var sampleSessionRevoked = feather.Session{
 	ID:        "SES_bar",
 	Object:    "session",
-	Type:      feather.SessionTypeAuthenticated,
 	Status:    feather.SessionStatusRevoked,
 	Token:     feather.String("qwerty"),
 	UserID:    "USR_foo",
@@ -171,8 +169,8 @@ var sampleSessionList = feather.SessionList{
 		TotalCount: 2,
 	},
 	Data: []*feather.Session{
-		&sampleSessionAnonymous,
-		&sampleSessionAuthenticated,
+		&sampleSessionActive,
+		&sampleSessionRevoked,
 	},
 }
 
@@ -227,14 +225,14 @@ func TestSessionsCreate(t *testing.T) {
 		assert.Equal(t, r.Method, http.MethodPost)
 		assert.Equal(t, r.URL.String(), "/v1/sessions")
 		w.WriteHeader(201)
-		json.NewEncoder(w).Encode(sampleSessionAnonymous)
+		json.NewEncoder(w).Encode(sampleSessionActive)
 	}))
 	defer server.Close()
 	client := createTestClient(server)
 	session, err := client.Sessions.Create(feather.SessionsCreateParams{
 		CredentialToken: feather.String("bar"),
 	})
-	assert.Equal(t, sampleSessionAnonymous, *session)
+	assert.Equal(t, sampleSessionActive, *session)
 	assert.Nil(t, err)
 }
 
@@ -321,12 +319,12 @@ func TestSessionsRetrieve(t *testing.T) {
 		assert.Equal(t, r.Method, http.MethodGet)
 		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/sessions/SES_foo"))
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(sampleSessionAnonymous)
+		json.NewEncoder(w).Encode(sampleSessionActive)
 	}))
 	defer server.Close()
 	client := createTestClient(server)
 	session, err := client.Sessions.Retrieve("SES_foo")
-	assert.Equal(t, sampleSessionAnonymous, *session)
+	assert.Equal(t, sampleSessionActive, *session)
 	assert.Nil(t, err)
 }
 
@@ -359,14 +357,14 @@ func TestSessionsRevoke(t *testing.T) {
 		assert.Equal(t, r.URL.String(), "/v1/sessions/SES_bar/revoke")
 		assert.Equal(t, r.FormValue("session_token"), "qwerty")
 		w.WriteHeader(201)
-		json.NewEncoder(w).Encode(sampleSessionAuthenticated)
+		json.NewEncoder(w).Encode(sampleSessionRevoked)
 	}))
 	defer server.Close()
 	client := createTestClient(server)
 	session, err := client.Sessions.Revoke("SES_bar", feather.SessionsRevokeParams{
 		SessionToken: feather.String("qwerty"),
 	})
-	assert.Equal(t, sampleSessionAuthenticated, *session)
+	assert.Equal(t, sampleSessionRevoked, *session)
 	assert.Nil(t, err)
 }
 
@@ -401,14 +399,14 @@ func TestSessionsUpgrade(t *testing.T) {
 		assert.Equal(t, r.Method, http.MethodPost)
 		assert.True(t, strings.HasPrefix(r.URL.String(), "/v1/sessions/SES_bar/upgrade"))
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(sampleSessionAuthenticated)
+		json.NewEncoder(w).Encode(sampleSessionRevoked)
 	}))
 	defer server.Close()
 	client := createTestClient(server)
 	session, err := client.Sessions.Upgrade("SES_bar", feather.SessionsUpgradeParams{
 		CredentialToken: feather.String("qwerty"),
 	})
-	assert.Equal(t, sampleSessionAuthenticated, *session)
+	assert.Equal(t, sampleSessionRevoked, *session)
 	assert.Nil(t, err)
 }
 
@@ -453,7 +451,7 @@ func TestSessionsValidate(t *testing.T) {
 			assert.Equal(t, r.URL.String(), "/v1/sessions/SES_10836cb6-994d-40f6-950c-3617be17b7c3/validate")
 			assert.Equal(t, r.FormValue("session_token"), sampleSessionTokenValidButStale)
 			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(sampleSessionAuthenticated)
+			json.NewEncoder(w).Encode(sampleSessionRevoked)
 		default:
 			break
 		}
@@ -464,7 +462,7 @@ func TestSessionsValidate(t *testing.T) {
 	session, err := client.Sessions.Validate(feather.SessionsValidateParams{
 		SessionToken: feather.String(sampleSessionTokenValidButStale),
 	})
-	assert.Equal(t, sampleSessionAuthenticated, *session)
+	assert.Equal(t, sampleSessionRevoked, *session)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, requestCount)
 }
@@ -540,13 +538,6 @@ func TestSessionsValidate_Invalid(t *testing.T) {
 	// Invalid session ID
 	session, err = client.Sessions.Validate(feather.SessionsValidateParams{
 		SessionToken: feather.String(sampleSessionTokenInvalidSessionId),
-	})
-	assert.Nil(t, session)
-	assert.Equal(t, "The session token is invalid", err.Error())
-
-	// Invalid session type
-	session, err = client.Sessions.Validate(feather.SessionsValidateParams{
-		SessionToken: feather.String(sampleSessionTokenInvalidType),
 	})
 	assert.Nil(t, session)
 	assert.Equal(t, "The session token is invalid", err.Error())

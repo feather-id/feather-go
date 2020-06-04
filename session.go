@@ -28,23 +28,11 @@ const (
 	SessionStatusRevoked = "revoked"
 )
 
-// SessionType represents the type of the session.
-type SessionType string
-
-const (
-	// The session user has not provided a valid credential.
-	SessionTypeAnonymous = "anonymous"
-
-	// The session user has provided a valid credential.
-	SessionTypeAuthenticated = "authenticated"
-)
-
 // Session is the Feather session object.
 // https://feather.id/docs/reference/api#sessionObject
 type Session struct {
 	ID        string        `json:"id"`
 	Object    string        `json:"object"`
-	Type      SessionType   `json:"type"`
 	Status    SessionStatus `json:"status"`
 	Token     *string       `json:"token"`
 	UserID    string        `json:"user_id"`
@@ -226,10 +214,6 @@ func (s *sessions) parseSessionToken(tokenStr string) (*Session, error) {
 	if !ok || !strings.HasPrefix(sessionID, "SES_") {
 		return nil, invalidTokenError
 	}
-	sessionTypeStr, ok := claims["typ"].(string)
-	if !ok || (sessionTypeStr != SessionTypeAnonymous && sessionTypeStr != SessionTypeAuthenticated) {
-		return nil, invalidTokenError
-	}
 	cat, ok := claims["cat"].(float64)
 	if !ok {
 		return nil, invalidTokenError
@@ -240,7 +224,6 @@ func (s *sessions) parseSessionToken(tokenStr string) (*Session, error) {
 	session := Session{
 		ID:        sessionID,
 		Object:    "session",
-		Type:      SessionType(sessionTypeStr),
 		Status:    SessionStatusActive,
 		Token:     &tokenStr,
 		UserID:    subject,
