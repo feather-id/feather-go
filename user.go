@@ -9,13 +9,17 @@ import (
 // User is the Feather user object.
 // https://feather.id/docs/reference/api#userObject
 type User struct {
-	ID        string            `json:"id"`
-	Object    string            `json:"object"`
-	Email     *string           `json:"email"`
-	Username  *string           `json:"username"`
-	Metadata  map[string]string `json:"metadata"`
-	CreatedAt time.Time         `json:"created_at"`
-	UpdatedAt time.Time         `json:"updated_at"`
+	ID              string            `json:"id"`
+	Object          string            `json:"object"`
+	Email           *string           `json:"email"`
+	Username        *string           `json:"username"`
+	IsAnonymous     bool              `json:"is_anonymous"`
+	IsEmailVerified bool              `json:"is_email_verified"`
+	Metadata        map[string]string `json:"metadata"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
+	FirstActiveAt   *time.Time        `json:"first_active_at"`
+	LastActiveAt    *time.Time        `json:"last_active_at"`
 }
 
 // UserList is a list of Feather user objects.

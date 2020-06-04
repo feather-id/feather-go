@@ -645,23 +645,27 @@ func TestSessionsValidate_GatewayError(t *testing.T) {
 // * * * * * Users * * * * * //
 
 var sampleUserEmpty = feather.User{
-	ID:        "USR_foo",
-	Object:    "user",
-	Email:     nil,
-	Username:  nil,
-	Metadata:  map[string]string{},
-	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
-	UpdatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+	ID:              "USR_foo",
+	Object:          "user",
+	Email:           nil,
+	Username:        nil,
+	IsAnonymous:     true,
+	IsEmailVerified: false,
+	Metadata:        map[string]string{},
+	CreatedAt:       time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+	UpdatedAt:       time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 }
 
 var sampleUser = feather.User{
-	ID:        "USR_bar",
-	Object:    "user",
-	Email:     nil,
-	Username:  feather.String("foobar"),
-	Metadata:  map[string]string{"highScore": "123"},
-	CreatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
-	UpdatedAt: time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+	ID:              "USR_bar",
+	Object:          "user",
+	Email:           nil,
+	IsAnonymous:     true,
+	IsEmailVerified: false,
+	Username:        feather.String("foobar"),
+	Metadata:        map[string]string{"highScore": "123"},
+	CreatedAt:       time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
+	UpdatedAt:       time.Date(2020, 01, 01, 01, 01, 01, 0, time.UTC),
 }
 
 var sampleUserList = feather.UserList{
