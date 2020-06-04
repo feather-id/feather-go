@@ -76,10 +76,11 @@ func (c credentials) Create(params CredentialsCreateParams) (*Credential, error)
 
 // CredentialsCreateParams ...
 type CredentialsCreateParams struct {
-	Type     CredentialType `json:"type"`
-	Email    *string        `json:"email"`
-	Username *string        `json:"username"`
-	Password *string        `json:"password"`
+	Type         CredentialType `json:"type"`
+	Email        *string        `json:"email"`
+	Username     *string        `json:"username"`
+	Password     *string        `json:"password"`
+	TemplateName *string        `json:"template_name"`
 }
 
 // Update a credential.
