@@ -815,6 +815,53 @@ func TestUsersUpdate_Error(t *testing.T) {
 	assert.Equal(t, "An error message", err.Error())
 }
 
+func TestUsersUpdatePassword(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodPost)
+		assert.Equal(t, r.URL.String(), "/v1/users/USR_bar/password")
+		assert.Equal(t, r.FormValue("credential_token"), "foobar")
+		assert.Equal(t, r.FormValue("new_password"), "p4ssw0rd")
+		w.WriteHeader(201)
+		json.NewEncoder(w).Encode(sampleUser)
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	user, err := client.Users.UpdatePassword("USR_bar", feather.UsersUpdatePasswordParams{
+		CredentialToken: feather.String("foobar"),
+		NewPassword:     feather.String("p4ssw0rd"),
+	})
+	assert.Equal(t, sampleUser, *user)
+	assert.Nil(t, err)
+}
+
+func TestUsersUpdatePassword_Error(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		username, _, _ := r.BasicAuth()
+		assert.Equal(t, username, sampleAPIKey)
+		assert.Equal(t, r.Method, http.MethodPost)
+		assert.Equal(t, r.URL.String(), "/v1/users/USR_bar/password")
+		assert.Equal(t, r.FormValue("credential_token"), "foobar")
+		assert.Equal(t, r.FormValue("new_password"), "p4ssw0rd")
+		w.WriteHeader(400)
+		json.NewEncoder(w).Encode(feather.Error{
+			Object:  "error",
+			Type:    feather.ErrorTypeValidation,
+			Code:    feather.ErrorCodeParameterInvalid,
+			Message: "An error message",
+		})
+	}))
+	defer server.Close()
+	client := createTestClient(server)
+	user, err := client.Users.UpdatePassword("USR_bar", feather.UsersUpdatePasswordParams{
+		CredentialToken: feather.String("foobar"),
+		NewPassword:     feather.String("p4ssw0rd"),
+	})
+	assert.Nil(t, user)
+	assert.Equal(t, "An error message", err.Error())
+}
+
 // * * * * * Gateway * * * * * //
 
 func TestGateway_UnparsableResponse(t *testing.T) {

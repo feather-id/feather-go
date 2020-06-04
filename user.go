@@ -35,6 +35,7 @@ type Users interface {
 	List(params UsersListParams) (*UserList, error)
 	Retrieve(id string) (*User, error)
 	Update(id string, params UsersUpdateParams) (*User, error)
+	UpdatePassword(id string, params UsersUpdatePasswordParams) (*User, error)
 }
 
 type users struct {
@@ -89,4 +90,22 @@ type UsersUpdateParams struct {
 	Email    *string            `json:"email"`
 	Username *string            `json:"username"`
 	Metadata *map[string]string `json:"metadata"`
+}
+
+// Update a user password.
+// https://feather.id/docs/reference/api#updateUserPassword
+func (u users) UpdatePassword(id string, params UsersUpdatePasswordParams) (*User, error) {
+	var user User
+	path := strings.Join([]string{pathUsers, id, "password"}, "/")
+	if err := u.gateway.sendRequest(http.MethodPost, path, params, &user); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+// UsersUpdatePasswordParams ...
+
+type UsersUpdatePasswordParams struct {
+	CredentialToken *string `json:"credential_token"`
+	NewPassword     *string `json:"new_password"`
 }
