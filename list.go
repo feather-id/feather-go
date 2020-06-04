@@ -5,7 +5,6 @@ package feather
 type ListMeta struct {
 	Objet      string `json:"Object"`
 	URL        string `json:"url"`
-	HasMore    bool   `json:"has_more"`
 	TotalCount uint32 `json:"total_count"`
 }
 

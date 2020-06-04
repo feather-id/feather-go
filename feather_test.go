@@ -165,7 +165,6 @@ var sampleSessionList = feather.SessionList{
 	ListMeta: feather.ListMeta{
 		Objet:      "list",
 		URL:        "/v1/sessions",
-		HasMore:    false,
 		TotalCount: 2,
 	},
 	Data: []*feather.Session{
@@ -672,7 +671,6 @@ var sampleUserList = feather.UserList{
 	ListMeta: feather.ListMeta{
 		Objet:      "list",
 		URL:        "/v1/users",
-		HasMore:    false,
 		TotalCount: 2,
 	},
 	Data: []*feather.User{
