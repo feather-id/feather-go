@@ -40,7 +40,7 @@ credential, _ := client.Credentials.Create(feather.CredentialsCreateParams{
 
 // Inform the user of their credential status
 switch credential.Status {
-case feather.CredentialStatusRequiresOneTimeCode:
+case feather.CredentialStatusRequiresVerificationCode:
 	log.Printf("Please check your email for a link to sign in")
 	return
 
